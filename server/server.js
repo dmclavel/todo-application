@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { ObjectID } = require('mongodb');
 
 const { mongoose } = require('./db/mongoose.js');
 const { Todo } = require('./models/todo');
@@ -27,6 +28,24 @@ app.get('/todos', (req, res) => {
     }).catch(err => {
         res.status(400).send(err);
     });
+});
+
+app.get('/todos/:id', (req, res) => {
+    const id = req.params.id;
+    
+    if (ObjectID.isValid(id)) {
+        Todo.findById({ _id: id })
+            .then(todo => {
+                if (todo)
+                    res.status(200).send(todo) 
+                else
+                    res.status(404).send(`_id: ${id}, is not found in the Todo collection.`);
+            })
+            .catch(err => res.status(404).send(`_id: ${id}, is not found in the Todo collection. More detailed error info:  ${err}`));
+
+    } else {
+        res.status(400).send(`_id: ${id}, does not exist in the Mongo database!`);
+    }
 });
 
 if (!module.parent) {
