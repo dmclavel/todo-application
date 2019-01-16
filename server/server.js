@@ -19,4 +19,10 @@ app.post('/todos', (req, res) => {
         .catch(err => res.status(400).send(err));
 });
 
-app.listen(3000, () => console.log('Listening on port 3000'));
+if (!module.parent) {
+    app.listen(3000, () => console.log('Listening on port 3000'));
+}
+
+module.exports = {
+    app
+};
