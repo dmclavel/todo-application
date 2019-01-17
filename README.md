@@ -1,2 +1,3 @@
-# todo-application
-A Node JS TODO application using MongoDB 
+TODO API
+
+How to Use:
