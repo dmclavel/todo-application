@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
+require('./db/mongoose');
 
 const { Todo } = require('./models/todo');
 const port = process.env.PORT || 3000;
@@ -15,16 +16,19 @@ app.post('/todos', (req, res) => {
     });
 
     todo.save()
-        .then(result => res.status(200).send(result))
+        .then(result => res.send(result))
         .catch(err => res.status(400).send(err));
 });
 
 app.get('/todos', (req, res) => {
+    console.log('GET /todos');
     Todo.find().then(todos => {
-        res.status(200).send({
+        console.log(todos);
+        res.send({
             todos
         });
     }).catch(err => {
+        console.log(err.message);
         res.status(400).send(err);
     });
 });
