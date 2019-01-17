@@ -1,3 +1,4 @@
+require('./config/config');
 const _ = require('lodash');
 const express = require('express');
 const cors = require('cors');
@@ -6,13 +7,12 @@ const { ObjectID } = require('mongodb');
 require('./db/mongoose');
 
 const { Todo } = require('./models/todo');
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-
 app.post('/todos', (req, res) => {
     const todo = new Todo({
         text: req.body.text

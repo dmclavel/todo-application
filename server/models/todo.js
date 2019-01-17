@@ -5,7 +5,7 @@ const Todo = mongoose.model('Todo', {
         type: String,
         required: true,
         minlength: 1,
-        maxlength: [25, 'Up to 25 characters only!'],
+        maxlength: [100, 'Up to 100 characters only!'],
         trim: true
     },
     completed: {
