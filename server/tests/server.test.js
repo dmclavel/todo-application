@@ -103,3 +103,29 @@ describe('GET /todos/:id', () => {
             .end(done);
     });
 });
+
+describe('DELETE /todos/:id', () => {
+    it('should delete a specific todo with a valid object id', done => {
+        request(app)
+            .delete(`/todos/${todos[0]._id.toHexString()}`)
+            .expect(200)
+            .end((error, response) => {
+                if (error)
+                    return console.log(error.message);
+                
+                Todo.find()
+                    .then(todos => {
+                        expect(todos.length).toBe(1);
+                        done();
+                    })
+                    .catch(err => done(err));
+            });
+    });
+
+    it('should return 400 for invalid IDs', done => {
+        request(app)
+            .delete('/todos/123456')
+            .expect(400)
+            .end(done);
+    });
+});
