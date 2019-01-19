@@ -7,12 +7,16 @@ const { ObjectID } = require('mongodb');
 require('./db/mongoose');
 
 const { Todo } = require('./models/todo');
+const { User } = require('./models/user');
 const port = process.env.PORT;
 
 const app = express();
 
+//Middlewares
 app.use(cors());
 app.use(bodyParser.json());
+
+//Todos
 app.post('/todos', (req, res) => {
     const todo = new Todo({
         text: req.body.text
@@ -86,6 +90,16 @@ app.patch('/todos/:id', (req, res) => {
     } else {
         return res.status(400).send(`_id: ${id} is not a valid id!`);
     }
+});
+
+//Users
+app.post('/users', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+    const user = new User(body);
+
+    user.save()
+        .then(() => res.status(200).send(user))
+        .catch(err => res.status(400).send(err));
 });
 
 if (!module.parent) {
