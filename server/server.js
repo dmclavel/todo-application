@@ -10,6 +10,7 @@ require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
+const bcrypt = require('bcryptjs');
 const port = process.env.PORT;
 
 const app = express();
@@ -111,6 +112,20 @@ app.post('/users', (req, res) => {
 
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
+});
+
+app.post('/users/login', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password)
+        .then(user => {
+            return user.generateAuthToken().then(token => {
+                res.header('x-auth', token).send(user);
+            });
+        })
+        .catch(() => {
+            res.status(400).send();
+        });
 });
 
 if (!module.parent) {
