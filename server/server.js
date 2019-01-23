@@ -16,10 +16,7 @@ const app = express();
 
 //Middlewares
 app.use(cors({
-    allowedHeaders: [
-        'Content-Type',
-        'Authorization'
-    ]
+    exposedHeaders: 'Authorization'
 }));
 app.use(bodyParser.json());
 
