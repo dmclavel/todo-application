@@ -32,7 +32,7 @@ app.post('/todos', authenticate, (req, res) => {
 
     todo.save()
         .then(result => res.status(200).send(result))
-        .catch(err => res.status(400).send(err));
+        .catch(() => res.status(400).send({ error: 'Error saving todo text!' }));
 });
 
 app.get('/todos', authenticate, (req, res) => {
@@ -56,12 +56,12 @@ app.get('/todos/:id', authenticate, (req, res) => {
                 if (todo)
                     res.status(200).send(todo) 
                 else
-                    res.status(404).send(`_id: ${id}, is not found in the Todo collection.`);
+                    res.status(404).send({ error: `_id: ${id} cannot be accessed!` });
             })
-            .catch(err => res.status(404).send(`_id: ${id}, is not found in the Todo collection. More detailed error info:  ${err}`));
+            .catch(() => res.status(404).send({ error: 'The todo text must have been already deleted!' }));
 
     } else {
-        res.status(400).send(`_id: ${id} is not a valid id!`);
+        res.status(400).send({ error: 'Invalid id!' });
     }
 });
 
@@ -76,10 +76,10 @@ app.delete('/todos/:id', authenticate, (req, res) => {
         _creator: req.user.id
     }).then(todo => {
         if (!todo)
-            return res.status(404).send();
+            return res.status(404).send({ error: 'The todo text must have been already deleted!'});
         res.send({ todo });
     }).catch(err => {
-        res.status(400).send();
+        res.status(400).send({ error: 'The todo text does not exist!' });
     });
 });
 
@@ -98,13 +98,13 @@ app.patch('/todos/:id', authenticate, (req, res) => {
         Todo.findOneAndUpdate({ _id: id, _creator: req.user._id }, { $set: body }, { new: true })
             .then(todo => {
                 if (!todo)
-                    return res.status(404).send();
+                    return res.status(404).send({ error: 'The todo text must have been already deleted!' });
                 
                 res.status(200).send({ todo });
             })
-            .catch(err => res.status(400).send());
+            .catch(() => res.status(400).send({ error: 'The todo text does not exist!' }));
     } else {
-        return res.status(400).send(`_id: ${id} is not a valid id!`);
+        return res.status(400).send({ error: 'Invalid id!' });
     }
 });
 
@@ -120,7 +120,12 @@ app.post('/users', (req, res) => {
         .then(token => {
             res.header('x-auth', token).send(user);
         })
-        .catch(err => res.status(400).send(err));
+        .catch(err => {
+            if (err.code === 11000)
+                res.status(400).send({error: `${body.email} already exists!`});
+            else
+                res.status(400).send({error: 'Password length should be greater than 5!'});
+        });
 });
 
 app.get('/users/me', authenticate, (req, res) => {
@@ -137,7 +142,7 @@ app.post('/users/login', (req, res) => {
             });
         })
         .catch(() => {
-            res.status(400).send();
+            res.status(400).send({ error: 'Email and password don\'t match!' });
         });
 });
 
