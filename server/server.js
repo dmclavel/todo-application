@@ -17,6 +17,7 @@ const app = express();
 //Middlewares
 app.use(cors({
     allowedHeaders: [
+        'Content-Type',
         'X-Auth'
     ]
 }));
