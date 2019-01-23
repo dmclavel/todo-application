@@ -15,6 +15,7 @@ describe('POST /todos', () => {
 
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({ text })
             .expect(200)
             .expect((res) => {
@@ -37,6 +38,7 @@ describe('POST /todos', () => {
 
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({ text })
             .expect(400)
             .expect(response => {
@@ -58,8 +60,9 @@ describe('GET /todos', () => {
     it('should successfully get todo data', done => {
         request(app)
             .get('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
-            .expect(response => expect(response.body.todos.length).toBe(2))
+            .expect(response => expect(response.body.todos.length).toBe(1))
             .end(done);
     });
 });
@@ -68,6 +71,7 @@ describe('GET /todos/:id', () => {
     it('should successfully get specific todo given a valid id', done => {
         request(app)
             .get(`/todos/${todos[0]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect(response => expect(response.body.text).toBe(todos[0].text))
             .end(done);
@@ -76,6 +80,7 @@ describe('GET /todos/:id', () => {
     it('should return a 404 if todo not found', done => {
         request(app)
             .get(`/todos/${new ObjectID().toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .expect(response => expect(response.body.length).toBeUndefined())
             .end(done);
@@ -84,7 +89,16 @@ describe('GET /todos/:id', () => {
     it('should return 400 for non-object IDs', done => {
         request(app)
             .get('/todos/123456')
+            .set('x-auth', users[0].tokens[0].token)
             .expect(400)
+            .end(done);
+    });
+
+    it('should not get specific todo created by other user', done => {
+        request(app)
+            .get(`/todos/${todos[1]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(404)
             .end(done);
     });
 });
@@ -92,11 +106,12 @@ describe('GET /todos/:id', () => {
 describe('DELETE /todos/:id', () => {
     it('should delete a specific todo with a valid object id', done => {
         request(app)
-            .delete(`/todos/${todos[0]._id.toHexString()}`)
+            .delete(`/todos/${todos[1]._id.toHexString()}`)
+            .set('x-auth', users[1].tokens[0].token)
             .expect(200)
             .end((error, response) => {
                 if (error)
-                    return console.log(error.message);
+                    return done(error);
                 
                 Todo.find()
                     .then(todos => {
@@ -107,10 +122,19 @@ describe('DELETE /todos/:id', () => {
             });
     });
 
+    it('should not delete todos of other users', done => {
+        request(app)
+            .delete(`/todos/${todos[0]._id.toHexString()}`)
+            .set('x-auth', users[1].tokens[0].token)
+            .expect(404)
+            .end(done);
+    });
+
     it('should return 400 for invalid IDs', done => {
         request(app)
             .delete('/todos/123456')
-            .expect(400)
+            .set('x-auth', users[1].tokens[0].token)
+            .expect(404)
             .end(done);
     });
 });

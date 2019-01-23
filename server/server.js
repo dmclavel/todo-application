@@ -19,9 +19,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 //Todos
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     const todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     todo.save()
@@ -29,8 +30,10 @@ app.post('/todos', (req, res) => {
         .catch(err => res.status(400).send(err));
 });
 
-app.get('/todos', (req, res) => {
-    Todo.find().then(todos => {
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({
+        _creator: req.user._id
+    }).then(todos => {
         res.status(200).send({
             todos
         });
@@ -39,11 +42,11 @@ app.get('/todos', (req, res) => {
     });
 });
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
     
     if (ObjectID.isValid(id)) {
-        Todo.findById({ _id: id })
+        Todo.findOne({ _id: id, _creator: req.user._id })
             .then(todo => {
                 if (todo)
                     res.status(200).send(todo) 
@@ -57,16 +60,22 @@ app.get('/todos/:id', (req, res) => {
     }
 });
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
 
-    if (ObjectID.isValid(id)) {
-        Todo.findByIdAndDelete(id)
-            .then(doc => res.status(200).send({ doc }))
-            .catch(() => res.status(404).send(`_id: ${id} does not exist in the Mongo database!`));
-    } else {
-        res.status(400).send(`_id: ${id} is not a valid id!`);
-    }
+    if (!ObjectID.isValid(id))
+        return res.status(404).send();
+
+    Todo.findOneAndDelete({
+        _id: id,
+        _creator: req.user.id
+    }).then(todo => {
+        if (!todo)
+            return res.status(404).send();
+        res.send({ todo });
+    }).catch(err => {
+        res.status(400).send();
+    });
 });
 
 app.patch('/todos/:id', (req, res) => {
