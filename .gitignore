@@ -62,3 +62,4 @@ typings/
 
 #playground folder
 /playground
+/server/config/config.json
