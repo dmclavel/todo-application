@@ -13,7 +13,12 @@ const authenticate = (req, res, next) => {
             req.token = token;
             next();
         })
-        .catch(() => res.status(401).send());
+        .catch(() => {
+            if (req.path === '/users/me')
+                res.status(200).send();
+            else 
+                res.status(401).send();
+        });
 };
 
 module.exports = {
