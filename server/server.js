@@ -15,7 +15,11 @@ const port = process.env.PORT;
 const app = express();
 
 //Middlewares
-app.use(cors());
+app.use(cors({
+    allowedHeaders: [
+        'X-Auth'
+    ]
+}));
 app.use(bodyParser.json());
 
 //Todos
