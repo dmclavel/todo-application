@@ -16,7 +16,7 @@ const app = express();
 
 //Middlewares
 app.use(cors({
-    exposedHeaders: 'Authorization'
+    exposedHeaders: 'X-Auth'
 }));
 app.use(bodyParser.json());
 
