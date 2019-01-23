@@ -18,7 +18,7 @@ const app = express();
 app.use(cors({
     allowedHeaders: [
         'Content-Type',
-        'X-Auth'
+        'Authorization'
     ]
 }));
 app.use(bodyParser.json());
