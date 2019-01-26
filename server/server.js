@@ -1,9 +1,11 @@
 require('./config/config');
 const _ = require('lodash');
 const express = require('express');
+const dotenv = require('dotenv');
 
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { mailer } = require('./mailer/mailer');
 const { ObjectID } = require('mongodb');
 require('./db/mongoose');
 
@@ -12,6 +14,7 @@ const { User } = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
 const port = process.env.PORT;
 
+dotenv.load();
 const app = express();
 
 //Middlewares
@@ -107,7 +110,7 @@ app.patch('/todos/:id', authenticate, (req, res) => {
 
 //Users
 app.post('/users', (req, res) => {
-    const body = _.pick(req.body, ['email', 'password']);
+    const body = _.pick(req.body, ['username', 'email', 'password']);
     const user = new User(body);
 
     user.save()
@@ -115,13 +118,13 @@ app.post('/users', (req, res) => {
             return user.generateAuthToken();
         })
         .then(token => {
+            return mailer(body.email, token);
+        })
+        .then(token => {
             res.header('x-auth', token).send(user);
         })
         .catch(err => {
-            if (err.code === 11000)
-                res.status(400).send({error: `${body.email} already exists!`});
-            else
-                res.status(400).send({error: 'Password length should be greater than 5!'});
+            res.status(400).send(err.message);
         });
 });
 
