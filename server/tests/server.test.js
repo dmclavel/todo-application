@@ -138,3 +138,18 @@ describe('DELETE /todos/:id', () => {
             .end(done);
     });
 });
+
+describe('POST /users', () => {
+    it ('should sign up succesfully given correct data', done => {
+        const data = {
+            username: 'test',
+            email: 'test@test.com',
+            password: '123456'
+        };
+        request(app)
+            .post('/users')
+            .send(data)
+            .expect(200)
+            .end(done);
+    });
+});

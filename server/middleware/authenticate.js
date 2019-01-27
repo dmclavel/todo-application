@@ -14,10 +14,7 @@ const authenticate = (req, res, next) => {
             next();
         })
         .catch(() => {
-            if (req.path === '/users/me')
-                res.status(200).send();
-            else 
-                res.status(401).send();
+            res.status(401).send();
         });
 };
 

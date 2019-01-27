@@ -8,6 +8,7 @@ const userTwoId = new ObjectID();
 const users = [
     {
         _id: userOneId,
+        username: "test1",
         email: 'andrew@example.com',
         password: 'userOnePass',
         tokens: [
@@ -20,6 +21,7 @@ const users = [
     }, 
     {
         _id: userTwoId,
+        username: "test2",
         email: 'dmclavel@email.com',
         password: 'userTwoPass',
         tokens: [
