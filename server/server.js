@@ -113,13 +113,21 @@ app.post('/users', (req, res) => {
     const body = _.pick(req.body, ['username', 'email', 'password']);
     const user = new User(body);
 
+    // user.save()
+    //     .then(() => {
+    //         return user.generateAuthToken();
+    //     })
+    //     .then(token => {
+    //         return mailer(body.email, token);
+    //     })
+    //     .then(token => {
+    //         res.header('x-auth', token).send(user);
+    //     })
+    //     .catch(err => {
+    //         res.status(400).send(err.message);
+    //     });
     user.save()
-        .then(() => {
-            return user.generateAuthToken();
-        })
-        .then(token => {
-            return mailer(body.email, token);
-        })
+        .then(() => user.generateAuthToken())
         .then(token => {
             res.header('x-auth', token).send(user);
         })
