@@ -12,7 +12,6 @@ require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
-const httpProxy = require('http-proxy');
 const port = process.env.PORT;
 
 dotenv.load();
@@ -23,15 +22,6 @@ app.use(cors({
     exposedHeaders: 'X-Auth'
 }));
 app.use(bodyParser.json());
-
-if (process.env.NODE_ENV === 'production') {
-    httpProxy.createProxyServer({
-        target: 'https://dmc-todo-app.herokuapp.com',
-        toProxy: true,
-        changeOrigin: true,
-        xfwd: true
-    });
-}
 
 //Todos
 app.post('/todos', authenticate, (req, res) => {
