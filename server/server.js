@@ -12,6 +12,7 @@ require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
+const httpProxy = require('http-proxy');
 const port = process.env.PORT;
 
 dotenv.load();
@@ -22,6 +23,15 @@ app.use(cors({
     exposedHeaders: 'X-Auth'
 }));
 app.use(bodyParser.json());
+
+if (process.env.NODE_ENV === 'production') {
+    httpProxy.createProxyServer({
+        target: 'http://my.app.com',
+        toProxy: true,
+        changeOrigin: true,
+        xfwd: true
+    });
+}
 
 //Todos
 app.post('/todos', authenticate, (req, res) => {
@@ -113,21 +123,13 @@ app.post('/users', (req, res) => {
     const body = _.pick(req.body, ['username', 'email', 'password']);
     const user = new User(body);
 
-    // user.save()
-    //     .then(() => {
-    //         return user.generateAuthToken();
-    //     })
-    //     .then(token => {
-    //         return mailer(body.email, token);
-    //     })
-    //     .then(token => {
-    //         res.header('x-auth', token).send(user);
-    //     })
-    //     .catch(err => {
-    //         res.status(400).send(err.message);
-    //     });
     user.save()
-        .then(() => user.generateAuthToken())
+        .then(() => {
+            return user.generateAuthToken();
+        })
+        .then(token => {
+            return mailer(body.email, token);
+        })
         .then(token => {
             res.header('x-auth', token).send(user);
         })
