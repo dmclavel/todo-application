@@ -24,6 +24,15 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
+if (process.env.NODE_ENV === 'production') {
+    httpProxy.createProxyServer({
+        target: 'https://dmc-todo-app.herokuapp.com',
+        toProxy: true,
+        changeOrigin: true,
+        xfwd: true
+    });
+}
+
 //Todos
 app.post('/todos', authenticate, (req, res) => {
     const todo = new Todo({
@@ -156,16 +165,7 @@ app.delete('/users/me/token', authenticate, (req, res) => {
 });
 
 if (!module.parent) {
-    if (process.env.NODE_ENV === 'production') {
-        httpProxy.createProxyServer({
-            target: 'http://my.app.com',
-            toProxy: true,
-            changeOrigin: true,
-            xfwd: true
-        }).listen(port);
-    } else {
-        app.listen(port, () => console.log(`Listening on port ${port}`));
-    }
+    app.listen(port, () => console.log(`Listening on port ${port}`));
 }
 
 module.exports = {
