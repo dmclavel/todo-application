@@ -12,7 +12,7 @@ require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
-const port = process.env.PORT;
+const port = 1337;
 
 dotenv.load();
 const app = express();
@@ -29,9 +29,15 @@ app.post('/todos', authenticate, (req, res) => {
         text: req.body.text,
         _creator: req.user._id
     });
-
     todo.save()
-        .then(result => res.status(200).send(result))
+        .then(() => {
+            return Todo.find({
+                _creator: req.user._id
+            });
+        })
+        .then(todos => {
+            res.status(200).send(todos);
+        })
         .catch(() => res.status(400).send({ error: 'Error saving todo text!' }));
 });
 
@@ -77,8 +83,14 @@ app.delete('/todos/:id', authenticate, (req, res) => {
     }).then(todo => {
         if (!todo)
             return res.status(404).send({ error: 'The todo text must have been already deleted!'});
-        res.send({ todo });
-    }).catch(err => {
+        return Todo.find({
+            _creator: req.user._id
+        });      
+    })
+    .then(todos => {
+        res.status(200).send(todos);
+    })
+    .catch(err => {
         res.status(400).send({ error: 'The todo text does not exist!' });
     });
 });
@@ -100,7 +112,12 @@ app.patch('/todos/:id', authenticate, (req, res) => {
                 if (!todo)
                     return res.status(404).send({ error: 'The todo text must have been already deleted!' });
                 
-                res.status(200).send({ todo });
+                return Todo.find({
+                    _creator: req.user._id
+                }); 
+            })
+            .then(todos => {
+                res.status(200).send(todos);
             })
             .catch(() => res.status(400).send({ error: 'The todo text does not exist!' }));
     } else {
