@@ -2,7 +2,7 @@ const sgMail = require('@sendgrid/mail');
 
 const mailer = (emailRecipient, token) => {
     return new Promise((resolve, reject) => {
-        sgMail.setApiKey(process.env.SENDGRID_SERVER_KEY);
+        sgMail.setApiKey('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');
         const msg = {
             to: emailRecipient,
             from: 'dmcbusinessapps@gmail.com',

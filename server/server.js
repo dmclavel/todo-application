@@ -1,7 +1,6 @@
-require('./config/config');
+require('dotenv').config();
 const _ = require('lodash');
 const express = require('express');
-const dotenv = require('dotenv');
 
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -14,9 +13,8 @@ const { User } = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
 const port = 1337;
 
-dotenv.load();
 const app = express();
-
+console.log(process.env.JWT_SECRET);
 //Middlewares
 app.use(cors({
     exposedHeaders: 'X-Auth'
