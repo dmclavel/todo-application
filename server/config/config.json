@@ -1,11 +1,11 @@
 {
     "test": {
-        "PORT": 8080,
+        "PORT": 8000,
         "MONGODB_URI": "mongodb://localhost:27017/TodoAppTest",
         "JWT_SECRET": "nodejstodoapitest012419"
     },
     "development": {
-        "PORT": 8080,
+        "PORT": 8000,
         "MONGODB_URI": "mongodb://localhost:27017/TodoApp",
         "JWT_SECRET": "nodejstodoapidevelopment012419"
     }

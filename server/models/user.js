@@ -41,13 +41,15 @@ const UserSchema = new mongoose.Schema({
             required: true
         }
     }]
+}, {
+    timestamps: true
 });
 
 UserSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
 
-    return _.pick(userObject, ['_id', 'email', 'username']);
+    return _.pick(userObject, ['_id', 'email', 'username', 'createdAt', 'updatedAt']);
 };
 
 UserSchema.methods.generateAuthToken = function () {
